@@ -65,7 +65,6 @@ class TestCxNxUtil(unittest.TestCase):
         '''
 
         g1 = cxu.to_networkx(json.loads(json_str_1))
-        cx1 = cxu.from_networkx(g1)
 
         json_str_2 = '''
         [
