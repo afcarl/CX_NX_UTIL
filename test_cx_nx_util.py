@@ -6,12 +6,6 @@ import json
 
 class TestCxNxUtil(unittest.TestCase):
 
-    def setUp(self):
-        print("setUp")
-
-    def tearDown(self):
-        print("tearDown")
-
     def test_basic_roundtrip(self):
         g1 = nx.scale_free_graph(10)
         cx1 = cxu.from_networkx(g1)
@@ -49,6 +43,7 @@ class TestCxNxUtil(unittest.TestCase):
         '''
 
         g1 = cxu.to_networkx(json.loads(json_str_1))
+        g11 = cxu.to_networkx(json.loads(json_str_1))
 
         json_str_2 = '''
         [
@@ -80,8 +75,8 @@ class TestCxNxUtil(unittest.TestCase):
         '''
 
         g2 = cxu.to_networkx(json.loads(json_str_2))
+        self.assertTrue(nx.is_isomorphic(g1, g11, edge_match=cxu.edge_id_match))
         self.assertFalse(nx.is_isomorphic(g1, g2, edge_match=cxu.edge_id_match))
-
 
 
     def test_ordered_and_unordered(self):
