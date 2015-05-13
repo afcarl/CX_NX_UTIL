@@ -116,7 +116,5 @@ def edge_id_match(e0, e1):
     if 'id' not in d0 and 'id' not in d1:
         return True
     elif 'id' not in d0 or 'id' not in d1:
-        print(">>"+str(d0))
-        print(">>"+str(d1))
         return False
     return d0['id'] == d1['id']
