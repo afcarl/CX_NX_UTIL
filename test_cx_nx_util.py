@@ -18,6 +18,72 @@ class TestCxNxUtil(unittest.TestCase):
         g2 = cxu.to_networkx(cx1)
         self.assertTrue(nx.is_isomorphic(g1, g2, edge_match=cxu.edge_id_match))
 
+    def test_edge_match(self):
+        json_str_1 = '''
+        [
+          {
+            "nodes": [
+              {
+                "@id": "_0"
+              },
+              {
+                "@id": "_1"
+              }
+            ]
+          },
+          {
+            "edges": [
+              {
+                "source": "_0",
+                "target": "_1",
+                "@id": "e1"
+              },
+              {
+                "source": "_1",
+                "target": "_2",
+                "@id": "e2"
+              }
+            ]
+          }
+        ]
+        '''
+
+        g1 = cxu.to_networkx(json.loads(json_str_1))
+
+        json_str_2 = '''
+        [
+          {
+            "nodes": [
+              {
+                "@id": "_0"
+              },
+              {
+                "@id": "_1"
+              }
+            ]
+          },
+          {
+            "edges": [
+              {
+                "source": "_0",
+                "target": "_1",
+                "@id": "e1"
+              },
+              {
+                "source": "_1",
+                "target": "_2",
+                "@id": "qwerty"
+              }
+            ]
+          }
+        ]
+        '''
+
+        g2 = cxu.to_networkx(json.loads(json_str_2))
+        self.assertFalse(nx.is_isomorphic(g1, g2, edge_match=cxu.edge_id_match))
+
+
+
     def test_ordered_and_unordered(self):
         json_str_1 = '''
         [
