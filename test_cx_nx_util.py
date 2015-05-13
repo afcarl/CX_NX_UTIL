@@ -42,9 +42,10 @@ class TestCxNxUtil(unittest.TestCase):
         ]
         '''
 
-        g1 = cxu.to_networkx(json.loads(json_str_1))
-        g11 = cxu.to_networkx(json.loads(json_str_1))
+        g1a = cxu.to_networkx(json.loads(json_str_1))
+        g1b = cxu.to_networkx(json.loads(json_str_1))
 
+        # Has different edge id.
         json_str_2 = '''
         [
           {
@@ -75,9 +76,46 @@ class TestCxNxUtil(unittest.TestCase):
         '''
 
         g2 = cxu.to_networkx(json.loads(json_str_2))
-        self.assertTrue(nx.is_isomorphic(g1, g11, edge_match=cxu.edge_id_match))
-        self.assertFalse(nx.is_isomorphic(g1, g2, edge_match=cxu.edge_id_match))
 
+        # Has no edge ids.
+        json_str_3 = '''
+        [
+          {
+            "nodes": [
+              {
+                "@id": "_0"
+              },
+              {
+                "@id": "_1"
+              }
+            ]
+          },
+          {
+            "edges": [
+              {
+                "source": "_0",
+                "target": "_1"
+              },
+              {
+                "source": "_1",
+                "target": "_2"
+              }
+            ]
+          }
+        ]
+        '''
+
+        g3a = cxu.to_networkx(json.loads(json_str_3))
+        g3b = cxu.to_networkx(json.loads(json_str_3))
+
+        # Same edge ids.
+        self.assertTrue(nx.is_isomorphic(g1a, g1b, edge_match=cxu.edge_id_match))
+        # Different edge ids.
+        self.assertFalse(nx.is_isomorphic(g1a, g2, edge_match=cxu.edge_id_match))
+        # Some missing edge ids.
+        self.assertFalse(nx.is_isomorphic(g1a, g3a, edge_match=cxu.edge_id_match))
+        # No edge ids.
+        self.assertTrue(nx.is_isomorphic(g3a, g3b, edge_match=cxu.edge_id_match))
 
     def test_ordered_and_unordered(self):
         json_str_1 = '''
