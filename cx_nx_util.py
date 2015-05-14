@@ -94,6 +94,8 @@ def to_networkx(cx, directed=True):
     else:
         g = nx.MultiGraph()
 
+    edge_ids = {}
+
     for x in cx:
         for key, value in x.items():
             if key == NODES:
@@ -102,6 +104,36 @@ def to_networkx(cx, directed=True):
             elif key == EDGES:
                 for edge in value:
                     __add_edge(g, edge)
+                    if '@id' in edge:
+                        edge_ids[edge['@id']] = (edge[SOURCE], edge[TARGET])
+    # print(g.nodes())
+    #print(edge_ids)
+    for x in cx:
+        for key, value in x.items():
+            if key == 'citations':
+                for citation in value:
+                    # print(citation)
+                    nodes = citation.get('nodes')
+                    edges = citation.get('edges')
+                    desc = citation.get('description')
+                    identifier = citation.get('identifier')
+                    # print(desc)
+                    # print(nodes)
+                    if nodes is not None:
+                        for node in nodes:
+                            # print(node)
+                            # print(g.has_node(node))
+                            # n = g.node[node]
+                            g.node[node]['citation'] = citation
+                            print("---"+str(g.node[node]['citation']))
+                    if edges is not None:
+                        for edge in edges:
+                            print("working on: " + edge)
+                            my_edge=edge_ids[edge]
+                            s = my_edge[0]
+                            t = my_edge[1]
+                            g[s][t]['citation'] = citation
+                            print("~~~"+str(g[s][t]['citation']))
 
     return g
 
