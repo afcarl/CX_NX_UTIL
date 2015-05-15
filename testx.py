@@ -221,3 +221,67 @@ print(nx.is_isomorphic(g4, g6, edge_match=cxu.edge_id_match))
 
 print(g6.nodes())
 print(g6.edges())
+
+
+json_str_7 = '''
+[
+  {
+    "nodes": [
+      {
+        "@id": "_0"
+      },
+      {
+        "@id": "_1"
+      },
+      {
+        "@id": "_2"
+      },
+      {
+        "@id": "_3"
+      }
+    ]
+  },
+  {
+    "edges": [
+      {
+        "source": "_0",
+        "target": "_1",
+        "@id": "e1"
+      },
+      {
+        "source": "_1",
+        "target": "_2",
+        "@id": "e2"
+      },
+      {
+        "source": "_2",
+        "target": "_0",
+        "@id": "e3"
+      },
+      {
+        "source": "_3",
+        "target": "_1",
+        "@id": "e4"
+      }
+    ]
+  },
+  {
+    "citations": [
+      {   "@id": "_0",
+          "nodes": [],
+          "edges": [ "_0" ],
+          "identifier": "doi:10.1016/0092-8674(93)80066-N",
+          "description": "Bcl-2 functions in an antioxidant pathway"
+      }
+    ]
+  }
+]
+'''
+
+g7 = cxu.to_networkx(json.loads(json_str_7))
+
+cx7 = cxu.from_networkx(g7)
+
+print(json.dumps(cx7, indent=2))
+
+

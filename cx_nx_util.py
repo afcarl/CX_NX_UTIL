@@ -11,15 +11,14 @@ TARGET = 'target'
 
 DATA = 'data'
 
+# From NetworkX:
 
 def __map_table_data(columns, graph_obj):
     data = {}
     for col in columns:
         if col == 0:
             break
-
         data[col] = graph_obj[col]
-
     return data
 
 
@@ -48,7 +47,6 @@ def __build_edge(edge_tuple):
 
 
 def from_networkx(g):
-    print(g.edges(data=True))
     edge_builder = None
     if isinstance(g, nx.MultiDiGraph) or isinstance(g, nx.MultiGraph):
         edges = g.edges(data=True, keys=True)
@@ -77,6 +75,8 @@ def from_networkx(g):
     return cx
 
 
+# To NetworkX:
+
 def __add_node(g, node):
     g.add_node(node[ID])
 
@@ -85,10 +85,8 @@ def __add_edge(g, edge):
     source = edge[SOURCE]
     target = edge[TARGET]
     if '@id' in edge:
-        eid = edge['@id']
-        g.add_edge(source, target, id=eid)
-        # print( g[source][target])
-        # print( type(g[source][target]))
+        g.add_edge(source, target)
+        g[source][target]['data'] = dict(id=edge['@id'])
     else:
         g.add_edge(source, target)
 
@@ -112,8 +110,7 @@ def to_networkx(cx, directed=True):
                     __add_edge(g, edge)
                     if '@id' in edge:
                         edge_ids[edge['@id']] = (edge[SOURCE], edge[TARGET]) # TODO this should go into __add_edge.
-    # print(g.nodes())
-    #print(edge_ids)
+
     for x in cx:
         for key, value in x.items():
             if key == 'citations':
@@ -123,28 +120,23 @@ def to_networkx(cx, directed=True):
                     if nodes is not None:
                         for node in nodes:
                             g.node[node]['citation'] = citation
-                            # print("---"+str(g.node[node]['citation']))
                     if edges is not None:
                         for edge in edges:
-                            # print("working on: " + edge)
                             my_edge = edge_ids[edge]
                             s = my_edge[0]
                             t = my_edge[1]
                             g[s][t]['citation'] = citation
-                            # print("~~~"+str(g[s][t]['citation']))
 
     return g
 
 
+# For comparisons:
+
 def edge_id_match(e0, e1):
-    if 0 in e0:
-        d0 = e0[0]
-        d1 = e1[0]
-    else:
-        d0 = e0
-        d1 = e1
-    if 'id' not in d0 and 'id' not in d1:
-        return True
-    elif 'id' not in d0 or 'id' not in d1:
-        return False
-    return d0['id'] == d1['id']
+    id0 = None
+    id1 = None
+    if 'data' in e0 and 'id' in e0['data']:
+        id0 = e0['data']['id']
+    if 'data' in e1 and 'id' in e1['data']:
+        id1 = e1['data']['id']
+    return id0 == id1

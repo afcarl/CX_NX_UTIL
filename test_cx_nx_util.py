@@ -13,7 +13,7 @@ class TestCxNxUtil(unittest.TestCase):
         self.assertTrue(nx.is_isomorphic(g1, g2, edge_match=cxu.edge_id_match))
 
     def test_edge_match(self):
-        json_str_1 = '''
+        json_str_1a = '''
         [
           {
             "nodes": [
@@ -42,8 +42,37 @@ class TestCxNxUtil(unittest.TestCase):
         ]
         '''
 
-        g1a = cxu.to_networkx(json.loads(json_str_1))
-        g1b = cxu.to_networkx(json.loads(json_str_1))
+        json_str_1b = '''
+        [
+          {
+            "edges": [
+              {
+                "source": "_1",
+                "target": "_2",
+                "@id": "e2"
+              },
+              {
+                "source": "_0",
+                "target": "_1",
+                "@id": "e1"
+              }
+            ]
+          },
+          {
+            "nodes": [
+              {
+                "@id": "_1"
+              },
+              {
+                "@id": "_0"
+              }
+            ]
+          }
+        ]
+        '''
+
+        g1a = cxu.to_networkx(json.loads(json_str_1a))
+        g1b = cxu.to_networkx(json.loads(json_str_1b))
 
         # Has different edge id.
         json_str_2 = '''
