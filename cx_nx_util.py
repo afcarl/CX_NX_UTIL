@@ -48,7 +48,7 @@ def __build_edge(edge_tuple):
 
 
 def from_networkx(g):
-    nodes = g.nodes()
+    print(g.edges(data=True))
     edge_builder = None
     if isinstance(g, nx.MultiDiGraph) or isinstance(g, nx.MultiGraph):
         edges = g.edges(data=True, keys=True)
@@ -58,6 +58,7 @@ def from_networkx(g):
         edges = g.edges(data=True)
         edge_builder = __build_edge
 
+    nodes = g.nodes()
     my_nodes = []
     for node_id in nodes:
         my_nodes.append(__create_node(node_id))
@@ -65,6 +66,9 @@ def from_networkx(g):
     my_edges = []
     for edge in edges:
         my_edges.append(edge_builder(edge))
+        if 'citation' in edge:
+            print( type(edge) )
+            print("|" + str(edge))
 
     cx = []
     cx.append({NODES: my_nodes})
@@ -83,6 +87,8 @@ def __add_edge(g, edge):
     if '@id' in edge:
         eid = edge['@id']
         g.add_edge(source, target, id=eid)
+        # print( g[source][target])
+        # print( type(g[source][target]))
     else:
         g.add_edge(source, target)
 
@@ -105,35 +111,27 @@ def to_networkx(cx, directed=True):
                 for edge in value:
                     __add_edge(g, edge)
                     if '@id' in edge:
-                        edge_ids[edge['@id']] = (edge[SOURCE], edge[TARGET])
+                        edge_ids[edge['@id']] = (edge[SOURCE], edge[TARGET]) # TODO this should go into __add_edge.
     # print(g.nodes())
     #print(edge_ids)
     for x in cx:
         for key, value in x.items():
             if key == 'citations':
                 for citation in value:
-                    # print(citation)
                     nodes = citation.get('nodes')
                     edges = citation.get('edges')
-                    desc = citation.get('description')
-                    identifier = citation.get('identifier')
-                    # print(desc)
-                    # print(nodes)
                     if nodes is not None:
                         for node in nodes:
-                            # print(node)
-                            # print(g.has_node(node))
-                            # n = g.node[node]
                             g.node[node]['citation'] = citation
-                            print("---"+str(g.node[node]['citation']))
+                            # print("---"+str(g.node[node]['citation']))
                     if edges is not None:
                         for edge in edges:
-                            print("working on: " + edge)
-                            my_edge=edge_ids[edge]
+                            # print("working on: " + edge)
+                            my_edge = edge_ids[edge]
                             s = my_edge[0]
                             t = my_edge[1]
                             g[s][t]['citation'] = citation
-                            print("~~~"+str(g[s][t]['citation']))
+                            # print("~~~"+str(g[s][t]['citation']))
 
     return g
 
