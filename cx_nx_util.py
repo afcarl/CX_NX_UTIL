@@ -11,31 +11,13 @@ TARGET = 'target'
 
 DATA = 'data'
 
-# From NetworkX:
+CITATIONS = 'citations'
 
-def __map_table_data(columns, graph_obj):
-    data = {}
-    for col in columns:
-        if col == 0:
-            break
-        data[col] = graph_obj[col]
-    return data
+# From NetworkX:
 
 
 def __create_node(node_id):
     return {ID: str(node_id)}
-
-
-def __build_multi_edge(edge_tuple):
-    source = edge_tuple[0]
-    target = edge_tuple[1]
-    key = edge_tuple[2]
-    data = edge_tuple[3]
-
-    data['source'] = str(source)
-    data['target'] = str(target)
-    data['interaction'] = str(key)
-    return {DATA: data}
 
 
 def __build_edge(edge_tuple):
@@ -58,19 +40,28 @@ def from_networkx(g):
 
     nodes = g.nodes()
     my_nodes = []
+    citations=[]
     for node_id in nodes:
         my_nodes.append(__create_node(node_id))
+        node_with_data = g.node[node_id]
+        print("node wd: " + str(node_with_data))
+        if 'data' in node_with_data:
+            data = node_with_data['data']
+            if CITATIONS in data:
+                citations.extend(data[CITATIONS])
+                print("    cit: " + str(citations))
 
     my_edges = []
     for edge in edges:
         my_edges.append(edge_builder(edge))
-        if 'citation' in edge:
-            print( type(edge) )
-            print("|" + str(edge))
+        if CITATIONS in edge:
+            print("e:" + str(edge))
 
     cx = []
     cx.append({NODES: my_nodes})
     cx.append({EDGES: my_edges})
+    if len(citations) > 0:
+        cx.append({CITATIONS: citations})
 
     return cx
 
@@ -84,9 +75,9 @@ def __add_node(g, node):
 def __add_edge(g, edge):
     source = edge[SOURCE]
     target = edge[TARGET]
+    #g.add_edge(source, target)
     if '@id' in edge:
-        g.add_edge(source, target)
-        g[source][target]['data'] = dict(id=edge['@id'])
+        g.add_edge(source, target, id=edge['@id'])
     else:
         g.add_edge(source, target)
 
@@ -113,19 +104,31 @@ def to_networkx(cx, directed=True):
 
     for x in cx:
         for key, value in x.items():
-            if key == 'citations':
+            if key == CITATIONS:
                 for citation in value:
                     nodes = citation.get('nodes')
                     edges = citation.get('edges')
+                    print("citation edges:" + str(edges))
                     if nodes is not None:
                         for node in nodes:
-                            g.node[node]['citation'] = citation
+                            my_node = g.node[node]
+                            if 'data' not in my_node:
+                                my_node['data'] = {}
+                            if CITATIONS not in my_node['data']:
+                                my_node['data'][CITATIONS] = []
+                            my_node['data'][CITATIONS].append(citation)
                     if edges is not None:
                         for edge in edges:
                             my_edge = edge_ids[edge]
-                            s = my_edge[0]
-                            t = my_edge[1]
-                            g[s][t]['citation'] = citation
+                            #print(my_edge)
+                            #if 'data' not in my_edge:
+                            #    my_edge['data'] = {}
+                            #if 'citation' not in my_edge['data']:
+                            #    my_edge['data']['citation'] = []
+                            #my_edge['data']['citation'].append(citation)
+                            #s = my_edge[0]
+                            #t = my_edge[1]
+                            #g[s][t]['data']['citation'] = citation
 
     return g
 
@@ -135,8 +138,13 @@ def to_networkx(cx, directed=True):
 def edge_id_match(e0, e1):
     id0 = None
     id1 = None
-    if 'data' in e0 and 'id' in e0['data']:
-        id0 = e0['data']['id']
-    if 'data' in e1 and 'id' in e1['data']:
-        id1 = e1['data']['id']
+    if 0 in e0:
+        e0 = e0[0]
+    if 0 in e1:
+        e1 = e1[0]
+    if 'id' in e0:
+        id0 = e0['id']
+    if 'id' in e1:
+        id1 = e1['id']
+
     return id0 == id1

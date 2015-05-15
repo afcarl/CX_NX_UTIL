@@ -137,6 +137,12 @@ class TestCxNxUtil(unittest.TestCase):
         g3a = cxu.to_networkx(json.loads(json_str_3))
         g3b = cxu.to_networkx(json.loads(json_str_3))
 
+        print(g1a.edges(data=True))
+        print(g1b.edges(data=True))
+        print(g2.edges(data=True))
+        print(g3a.edges(data=True))
+
+
         # Same edge ids.
         self.assertTrue(nx.is_isomorphic(g1a, g1b, edge_match=cxu.edge_id_match))
         # Different edge ids.
